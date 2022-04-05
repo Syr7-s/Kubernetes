@@ -57,3 +57,9 @@
 * it will download all the Maven dependencies, so it could take awhile, but because I have run this command on this machine earlier, it'll run rather quickly. So at this point it's really building my application, packaging my application, and the application rather started very quickly.
 
   ![k8s6](images/k8s6.png)
+  
+* Note : 
+
+* Where should the Docker image for your Java application be published?
+
+*  Docker image needs to be published to a Docker registry accessible to the cluster. This allows control plane to download the image.

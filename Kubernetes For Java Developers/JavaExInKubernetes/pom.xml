@@ -72,4 +72,47 @@
         <finalName>first-project-in-kubernetes</finalName>
     </build>
 
+
+    <profiles>
+        <profile>
+            <id>jib</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.google.cloud.tools</groupId>
+                        <artifactId>jib-maven-plugin</artifactId>
+                        <version>3.1.4</version>
+                        <configuration>
+                            <from>
+                                <image>openjdk:8-jre</image>
+                            </from>
+                            <to>
+                                <image>${docker.name}</image>
+                            </to>
+                            <container>
+                                <environment>
+                                    <_JAVA_OPTIONS>'-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005'</_JAVA_OPTIONS>
+                                    <swarm.http.port>8080</swarm.http.port>
+                                </environment>
+                                <ports>
+                                    <port>8080</port>
+                                    <port>5005</port>
+                                </ports>
+                                <useCurrentTimestamp>true</useCurrentTimestamp>
+                            </container>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>dockerBuild</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
 </project>
