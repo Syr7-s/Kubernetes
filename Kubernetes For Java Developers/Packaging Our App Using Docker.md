@@ -159,5 +159,70 @@
 
   ![k8s10](images/k8s10.png)
 
-*  all the build and the production images are done using a single Dockerfile, using a multi stage Dockerfile
+* all the build and the production images are done using a single Dockerfile, using a multi stage Dockerfile
+
+  ```shell
+  $ docker image build -t syr7s/javaex:v1 -f Dockerfile .
+  ```
+
+  ```dockerfile
+  FROM maven:3.8-jdk-8 as BUILD
+  
+  ADD repository.tar.gz /usr/share/maven/ref/
+  
+  COPY . /usr/src/app
+  WORKDIR /usr/src/app
+  RUN mvn -s /usr/share/maven/ref/settings-docker.xml package
+  
+  FROM openjdk:8-jre
+  EXPOSE 8080 5005
+  COPY --from=BUILD /usr/src/app/target /opt/target
+  WORKDIR /opt/target
+  ENV _JAVA_OPTIONS '-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005'
+  
+  CMD ["java", "-jar", "first-project-in-kubernetes.jar"]
+  ```
+
+#### Working With a Docker Container
+
+* We're going to launch a container using that image.
+
+* Run container and show logs
+
+  ```shell
+  $ docker container run -p 8080:8080 syr7s/javaex:v1
+  ```
+
+* Access application
+
+  ```shell
+  $ curl http://localhost:8080/hello
+  ```
+
+* Show list of containers
+
+  ```shell
+  $ docker container ls | docker ps | docker ps -a
+  ```
+
+* Terminate Container:
+
+  ```shell
+  $ docker container stop <container name>
+  $ docker container rm <container name>
+  ```
+
+* Alternatively Start the container
+
+  ```shell
+  $ docker container run -p 8080:8080 --name javaex -d syr7s/javaex:v1
+  ```
+
+* Show logs
+
+  ```shell
+  $ docker container logs javaex
+  ```
+
+  
 

@@ -16,9 +16,10 @@
     <properties>
         <java.version>1.8</java.version>
         <docker.repo>syr7s</docker.repo>
-        <docker.tag>latest</docker.tag>
+        <docker.tag>${version}</docker.tag>
         <docker.registry>registry.hub.docker.com</docker.registry>
-        <docker.name>${docker.registry}/${docker.repo}/${project.build.finalName}:${docker.tag}</docker.name>
+        <!-- <docker.name>${docker.registry}/${docker.repo}/${project.build.finalName}:${docker.tag}</docker.name>-->
+        <docker.name>${docker.repo}/${project.build.finalName}:${docker.tag}</docker.name>
         <greeting.host>localhost</greeting.host>
         <greeting.port>8080</greeting.port>
     </properties>
@@ -98,7 +99,7 @@
                                     <port>8080</port>
                                     <port>5005</port>
                                 </ports>
-                                <useCurrentTimestamp>true</useCurrentTimestamp>
+
                             </container>
                         </configuration>
                         <executions>
