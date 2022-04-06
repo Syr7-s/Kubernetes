@@ -224,5 +224,143 @@
   $ docker container logs javaex
   ```
 
-  
+* Docker container run is the command that tells Docker engine to run the container. Dash p is an option that maps a container port to a specific port on the host.
 
+  ![k8s11](images/k8s11.png)
+
+* You can also see in terms of the ports, I have port 5005, which is not being exposed at this point of time. I'm only exposing port 8080 on the container to 8080 on the host, and that's how we were able to access the application.
+
+  ![k8s12](images/k8s12.png)
+
+* Connect container
+
+  ```shell
+   $ docker container exec -it javaex bash
+  ```
+
+  ![k8s13](images/k8s13.png)
+
+* One command two process
+
+  ```shell
+  $ docker container rm -f javaex
+  ```
+
+#### Build a Docker Image Using Jib
+
+* Dockerfile is a common way to package your Java applications as a Docker image. 
+
+* How does this building of Docker Image fits into your workflow? Jib is a tool that supports that. 
+
+* ### Jib
+
+* Jib builds optimized Docker and OCI images for your Java applications. It is commonly therefore too, as a compiler for containers. Jib allows you to deploy changes fast. It separates your applications into multiple layers, spreading dependencies from classes.
+
+* Now you don't have to wait for Docker to rebuild your entire Java application. Just deploy the layers that changed. A Docker daemon is not needed to build the image. An image is built directly to the registry. 
+
+* Optionally, it can also be built to a Docker daemon. Writing a Dockerfile to create Docker image for your Java application means you need to learn two different sets of tools, one for Java, one for Docker. You also need to learn best practices around Dockerfile and need to insure they're consistently followed across the team. 
+
+* With Jib, there is no need to write a Dockerfile. It uses an open-ended base image that can also be run in debug mode.
+
+* The most important part is it's available as plugins for Maven and Gradle and as the Java library. You can also push to any registry of your choice. This allows you to seamlessly integrate this as part of your build process. No need to write Dockerfile or Docker Build and Push. Jib is an open-source tool and you can get all the details about the tool at GitHub repo.
+
+  ![k8s14](images/k8s14.png)
+
+* And we are looking at the Maven profile. This profile is called just jib. Here is the groupID, artifactID, and the jib plugin version. Make sure you use the latest plugin version because it always has more features into it. Now, in terms of our image, we're using openjdk:8-j re as a base image. As we said, the base image can be overwritten. Here is the image that we are going to create. Here are my container options. Here are my runtime options, the ports that I am exposing. Here is an additional option that I'm specifying, which make sure that the timestamp on my docker image is always colored. Now, I'm binding the docker build code to the package phase of the jib profile. What that means is, when I give a Maven package command, it will also involve the docker build goal of the jib plugin.
+
+  ```xml
+   <properties>
+          <java.version>1.8</java.version>
+          <docker.repo>syr7s</docker.repo>
+          <docker.tag>latest</docker.tag>
+          <docker.registry>registry.hub.docker.com</docker.registry>
+          <docker.name>${docker.registry}/${docker.repo}/${project.build.finalName}:${docker.tag}</docker.name>
+          <greeting.host>localhost</greeting.host>
+          <greeting.port>8080</greeting.port>
+      </properties>
+      ***
+      <profiles>
+          <profile>
+              <id>jib</id>
+              <build>
+                  <plugins>
+                      <plugin>
+                          <groupId>com.google.cloud.tools</groupId>
+                          <artifactId>jib-maven-plugin</artifactId>
+                          <version>3.1.4</version>
+                          <configuration>
+                              <from>
+                                  <image>openjdk:8-jre</image>
+                              </from>
+                              <to>
+                                  <image>${docker.name}</image>
+                              </to>
+                              <container>
+                                  <environment>
+                                      <_JAVA_OPTIONS>'-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005'</_JAVA_OPTIONS>
+                                      <swarm.http.port>8080</swarm.http.port>
+                                  </environment>
+                                  <ports>
+                                      <port>8080</port>
+                                      <port>5005</port>
+                                  </ports>
+                                  <useCurrentTimestamp>true</useCurrentTimestamp>
+                              </container>
+                          </configuration>
+                          <executions>
+                              <execution>
+                                  <phase>package</phase>
+                                  <goals>
+                                      <goal>dockerBuild</goal>
+                                  </goals>
+                              </execution>
+                          </executions>
+                      </plugin>
+                  </plugins>
+              </build>
+          </profile>
+      </profiles>
+  
+  ```
+
+* I can give the command Maven package and just the jib profile. And once I give this command, Now, if you're giving this command for the very first time, it will of course download all of the dependencies and everything for you, but we have already run the command on this machine, so the dependencies are predownloaded. So, the cool thing here is, you can see it's actually building to the Docker daemon. But in between, it also tries to retrieve the registry credentials. For something important is how do you configure the registry for your Jib profile? 
+
+  ```shell
+  $ mvn package Pjib
+  ```
+
+  ```shell
+  <useCurrentTimestamp>true</useCurrentTimestamp> was removed. 
+  ```
+
+* So any of Maven settings, you can set up these values. The registry name, in this case is registry.hub.docker.com then of course you give your user name and your registry password. And that's how it authenticates with the registry.
+
+  ```xml
+  <settings>
+   ...
+   <servers>
+    ... 
+    <server>
+    	<id>MY_REGISTRY</id>
+    	<username>MY_USERNAME</username>
+    	<password>{MY_SECRET}</password>
+    </server>
+   </servers>
+  </settings>
+  ```
+
+* Once you have done that, then you can just give the command, and in this case, it does build the Docker image to our local Docker daemon.
+
+  ![k8s15](images/k8s15.png)
+
+* The cool thing about Jib is, as we discussed earlier, it actually splits your classes, resources, and dependencies into each individual Docker layer. This truly leveraging the Docker layering mechanism in an image and allowing you to integrate more rapidly. This way Docker does not have to build an entire application. If your resources and dependencies have not changed, which is typically the case, then only your classes layer is rebuilt and can be easily pushed to the registry. This is particularly relevant in a microservices world because you want that agility for your application and to be able to deploy your application more rapidly as well.
+
+* you can of course build without the Docker daemon and directly to a registry. So, what we can do is, we can just say Maven jib:build and we can still use the same profile and now in this case, it's going to build the exact same image but it's going to push it directly to the Docker registry. We just retrieved the registry credentials and built and pushed the image as syr7s/first-project-in-kubernetes:0.0.1
+
+  ```shell
+  $ mvn jib:build -Pjib
+  ```
+
+  ![k8s16](images/k8s16.png)
+
+​	
