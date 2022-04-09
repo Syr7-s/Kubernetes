@@ -363,4 +363,64 @@
 
   ![k8s16](images/k8s16.png)
 
+#### Minimal Docker image using customer JRE
+
+* Jlink is a tool that we're going to use and that is available in JDK9 onwards and it allows to assemble and optimize a set of modules and their dependencies into a custom runtime image, or a custom JRE for your application.
+
+*  When we look at the default JDK version, that is JDK10, which is beyond JDK9 and so that works for us. Of course we have cloned the repo, built the application, installed Docker in there, and built the Docker image, so that we can compare the two Docker image sizes. So that's kind of cool. With that setup, let's go to our terminal where our EC2 instance is already logged into. So here we are. I'm going to type java -version and that is indeed OpenJDK version 10. Now, jlink tool operates on jar files, and our application generally, the war file. So we're going to copy the war file to the jar file. 
+
+  ```shell
+  jlink \
+  	--output myjre \
+  	--add-modules $(jdeps --print-module-deps target/first-project-in-kubernetes.jar),\
+  	java.xml,jdk.unsupported,java.sql,java.naming,java.desktop,\
+  	java.management,java.security.jgss,java.instrument
+  ```
+
+*  jlink is saying create a new directory by the name myjre, add the modules, and in turn, it's also using a tool, jdeps, which says, okay, give me all the dependencies for a particular jar file. So it's saying print module dependencies for first-project-in-kubernetes.jar and in addition, these are all the modules that are needed for Spring Boot. So essentially, you are creating a collective list of modules needed for your application and its dependencies. So if we look at our directory here, I have a myjre directory created for us because that's exactly where my custom runtime is available. 
+
+* Ubuntu
+
+  ```Dockerfile
+  FROM openjdk:9-jdk as BUILD
+  
+  COPY . /usr/src/app
+  WORKDIR /usr/src/app
+  RUN jlink --output myjre --module-path $JAVA_HOME/jmods --add-modules java.xml,jdk.unsupported,java.sql,java.naming,java.desktop,java.management,java.security.jgss,java.instrument
+  
+  FROM debian:9-slim
+  
+  COPY target/first-project-in-kubernetes.jar /root
+  COPY --from=BUILD /usr/src/app/myjre /root/myjre
+  
+  EXPOSE 8080 5005
+  WORKDIR /root
+  
+  CMD ["./myjre/bin/java", "-jar", "first-project-in-kubernetes.jar"]
+  
+  ```
+
+  ![k8s17](images/k8s17.png)
+
+  ```shell
+  $ docker container run -d -p 8080:8080 syr7s/first-project-in-kubernetes:v.0.0.2
+  ```
+
+* We looked at how we can create a custom JRE for your application, package it up as a Docker image, and then access the response back from it. So same Java application but now using custom JRE and a Docker image.
+
+#### Questions
+
+* Name the tools that are used to create custom JRE
+* ans : jlink and jdeps - jdeps will find out the list of dependent modules and jlink will link them together to create the custom JRE.
+* What are the advantages of Jib?
+* ans : no need to write a Dockerfile,Docker daemon is optional,available as a Maven and Gradle plugin
+* What command will terminate and remove a container?
+* ans : docker rm -f <name> - This is the command to terminate and remove the container.
+* What is the correct command to build a Docker image?
+* ans : docker image build -t name:tag - You need to specify the command "image build," provide a name, optionally a tag, and the build context.
+* What is the first instruction in a Dockerfile?
+* ans : FROM - FROM is always the first instruction in Dockerfile and defines the base image that is used for creating the Docker image.
+* What is the correct order for Client Host, Server Host and Registry to communicate?
+* ans  : Client Host -> Server Host -> Registry - Client Host gives the command to Server Host, which then communicates with Registry on client's behalf.
+
 ​	
