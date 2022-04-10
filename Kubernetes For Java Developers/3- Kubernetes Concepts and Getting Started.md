@@ -214,7 +214,7 @@
 
 * There is usually apiVersion, kind, metadata, we're creating a single replica of the pod over here. This is my pod template. In that I'm assigning app colon greeting as a label to each pod. It's important we understand this label because when I'm creating my service later on, it's going to rely on these particular labels being on the pod. Then I go to pod Spec, in that I'm creating a single container, this is my image name, and here are the ports that I'm exposing
 
-  ```shell
+  ```yaml
   apiVersion: apps/v1
   kind: Deployment
   metadata:
@@ -324,3 +324,71 @@
 * How a chart is converted into a release. This architecture has already evolved for Helm 3. Our starting point, either way, is a Kubernetes cluster. Helm has two parts, client which is also called as a Helm client, and Server which is also called as tiller. Tiller run inside of your Kubernetes cluster and manages releases of your charts, also the installations of your chart. Helm runs on your laptop, CI/CD, or wherever you want it to run. Charts can be stored on disk, or, fresh from remote chart repositories like Debian or Red Hat packages. The Helm client and server are written in the Go programming language and use the gRPC protocol suite to interact with each other. Currently that library uses RESTPlus JSON. Tiller server stores configuration information about charts using ConfigMap in Kubernetes. The client sends the interpolated configs to tiller. It uses the configuration data and communicates with Kubernetes API server to create a new release of the chart. This explains how charts are deployed as releases in a Kubernetes cluster. At high level, Helm client manages charts and Helm server manages releases.
 
   ![k8s28](images/k8s28.png)
+
+#### Deploy Using Helm Charts
+
+* How we can deploy multiple Kubernetes resources using a single Helm chart.
+
+  ```powershell
+  choco install kubernetes-helm
+  ```
+
+* On the server side, it says could not find tiller because so far we have not initialized our cluster or the Kubernetes cluster with Helm
+
+* I can just say helm init and this will initialize my Kubernetes cluster with Tiller.
+
+* We give this command and it creates all my resources. So deployment, pod, and service and everything that we wanted to create over here
+
+* How we can access the service very easily.  This is our usual way to access the application and as expected, we get the response Hello.
+
+  ```shell
+  curl http://localhost:8080/api/v1/greeting
+  ```
+
+* Java application packages a docker container deployed as a Helm chart in the Kubernetes cluster.
+
+  ```shell
+  curl http://$(kubectl get svc/greeting \
+         -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'):8080/hello
+  ```
+
+* Advantage of this particular command is this would work across your different environment, whether it's your Cloud, whether it's your desktop, whether it's your home frame, and this is the universal command that will work all across.
+
+  ```shell
+  helm delete --purge myapp
+  ```
+
+#### Debug a Deployment with Intellij
+
+* When I'm building my application in Kubernetes, and deploying in them? This section will explain how you can debug a kubernetes pod, if a cluster is running on your local machine. 
+
+  ```shell
+  helm install --name myapp myapp
+  ```
+
+* That's the first thing I need to do. The second thing I need to do is I need to set up IntelliJ so that it can connect to a remote JVM. So, I go to run, debug, edit the configuration here, add a new remote config here, and we are going to call it as Kubernetes, and take everything else as default. It says local host 5005. That's what is going to connect to our JVM. And it expects that this is the command that's going to be in your Docker image essentially. Now if you remember from our Docker file on how we build this image, this is exactly the command that we took and inserted into our Docker file as underscore java underscore options. So that's sort of the way by which you are connecting your JVM and your Docker file and making sure the options go past through. And then, in the service and in the deployment, we were exposing those ports so that now they are accessible to the outside world as well
+
+#### Questions
+
+* Which Java IDE supports debugging of Java application deployed as pods?
+* ans : any Java IDE that supports debugging of a Java application.You can use existing Java tooling to debug your applications deployed as pods.
+* Where are k8s resources defined in a Helm chart?
+
+* ans : any yaml files defined in the templates directory. All yaml files in the templates directory are considered k8s resources.
+* Which file is used to list predefined values for templates in the chart?
+* ans : values.yaml in main directory of the chart.The values defined in values.yaml can be used in other templates.
+* What is the correct command to list all the service, deployment and pods together?
+* ans  : kubectl get svc,deployment,pods. This command shows the list of service, deployment, and pods.
+* Which pods are included in the Service?
+* ans : the pods that have the sames labels as defined by spec.selector in the service specification.Only the pods that have matching labels as defined by spec.selector in the service specification are included in the service.
+* Minikube can be used to create a k8s cluster on the cloud?
+* ans : FALSE,Minikube can only be used to create a cluster on desktop.
+* What command can be used to see the list of current kubeconfig contexts?
+* ans : kubectl config get-contexts .This will show the list of current kubeconfig contexts.
+* What is the usual flow to create k8s resources in a cluster?
+* ans : kubectl -> control plane -> data plane . Kubectl commands are given to control plane, which then creates the resources on data plane.
+* What is the right resource type to ensure one copy of pod is running on each node of the cluster?
+* ans : Daemonset . Dameonset ensures that all nodes in the cluster run a copy of a pod
+* What is the common number of containers per pod?
+* ans : 1,One container per pod is the most common use case.
+
