@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: springapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: springapp
+  template:
+    metadata:
+      labels:
+        app: springapp
+    spec:
+      containers:
+        - name: first-project-in-kubernetes
+          image: syr7s/first-project-in-kubernetes:v2
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+              name: "http"
+            - containerPort: 5005
+              name: "debug"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: springapp
+spec:
+  selector:
+    app: springapp
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: NodePort
+
