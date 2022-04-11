@@ -82,3 +82,32 @@
 
 #### Istio Resources
 
+* **Destination Rule :** is a resource that allows to specify one or more named sets that represent individual versions of a service. Each version is uniquely identified using the labels attached to the pod. It also defines policies that apply to traffic intended for a service after routing has occurred.
+
+* These rules specify configuration for load balancing, connection pool size from the sidecar, and outlier reduction settings to detect and evict unhealthy hosts from the load balancing pool.
+
+  ![k8s36](images/k8s36.png)
+
+* Traffic policies can be applied to all sets or overridden at subset level
+
+* **Virtual Service** :  A VirtualService defines a set of traffic routing rules to apply when a host is addressed.
+
+* What weight should we assign to multiple services defined in this VirtualService?
+
+* How many times a HTTP request should be retried if the request fails? 
+
+* Another rule could be, what HTTP force can be injected when forwarding requests to the destination service?
+
+* Actual rules are defined for different protocols. 
+
+  ![k8s37](images/k8s37.png)
+
+* HTTP, TCP, and TLS are supported protocols. The traffic is matched by the protocol, then it's sent to a named destination service, or subset or version of it, that must have been defined by our destination rule.
+
+* **Istio Gateway :**  Gateway describes a load balancer operating at the edge of the mesh, receiving incoming or outgoing HTTP/TCP connections. A gateway allows Istio features, such as monitoring and routing rules, to be applied to traffic entering the cluster. Its specification describes a set of ports that should be exposed, the type of protocol to use, configuration for the load balancer, etc.
+
+  ![k8s38](images/k8s38.png)
+
+* A VirtualService can then be bound to a gateway to control the forwarding of traffic arriving at a particular host or gateway port.
+
+* Service did not have a type of load balancer, and so the service has to be only accessed using the ingress gateway, because that's exactly where Istio traffic's spreading and all the Istio rules can be applied. 
