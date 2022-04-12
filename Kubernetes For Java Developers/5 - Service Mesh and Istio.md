@@ -111,3 +111,50 @@
 * A VirtualService can then be bound to a gateway to control the forwarding of traffic arriving at a particular host or gateway port.
 
 * Service did not have a type of load balancer, and so the service has to be only accessed using the ingress gateway, because that's exactly where Istio traffic's spreading and all the Istio rules can be applied. 
+
+#### Traffic shifting using Istio
+
+* One of the power of Istio is that the rules configuration and traffic routing let's you control the flow of traffic and the API calls between services. It can exactly define how much traffic should go to one service. 
+
+#### Visualize mesh using Kiali
+
+* When your services are deployed in the communities cluster, you need some visibility into them. There are plenty of tools available, such as Prometheus, Grafana, and many others that provide you visibility into how your micro services are running, how are they connected.
+
+* Kiali is a new tool that has been introduced recently as part of Istio. Well, first of all, going with our sailing team around Kubernetes, Kiali is yet another Greek word meaning monocular or spyglass. Kiali project provides answers for the questions, what microservices are part of my Istio service mesh and how are they connected?
+
+* gain insight into how your mesh is functioning, have a checkup with your mesh's health
+
+* You can zoom in to see what is happening with a single component, you can visualize your traffic flow, browse your service mesh by applications, workloads and services and much more. 
+
+* By default Kiali is disabled when Istio 1.0.5 is installed and so it needs to be enabled
+
+  ```shell
+  helm template --set kiali.enabled=true install/kubernetes/helm/istio --name istio --namespace istio-system > $HOME/istio.yaml
+  ```
+
+  ```shell
+  $ port-forward $(kubectl -n istio-system \ 
+  > get pod -l app=kiali \
+  > -o jsonpath='{.items[0].metadata.name}') 20001:20001
+  ```
+
+* What we have done is we have done the port forwarding of the Kiali port here. The default username and password is admin. So username admin, password admin and login.
+
+* That leads to a clean deletion of istio from your EKS cluster.
+
+  ```shell
+  kubectl delete -f install/kubernetes/helm/istio/templates/crds.yaml -n istio-system
+  ```
+
+#### Question
+
+* If a VirtualServices assigns 90% weight to service A and 10% weight to service B, how much traffic is split between the two services?
+* ans : about 90% to service A and remaining to service B . The assigned weight is a close approximate of how the traffic would be split between two services.
+* Which Istio resource allows to specify one or more named sets that represent individual versions of a service?
+* ans : DestinationRule.DestinationRule is a resource that allows you to specify one or more named sets that represent individual versions of a service. Each version is uniquely identified using the labels attached to the pod.
+* Which pods are injected with proxy sidecar in a standard k8s cluster?
+* ans : only the pods that are explicitly injected with proxy sidecar.Namespace injection is not enabled in a standard k8s cluster. So a pod with explicit sidecar container in pod specification is the only one that will have sidecar proxy injected.
+* What namespace is used to install Istio resources?
+* ans : istio-system.Istio resources are installed in the istio-system namespace.
+* What is the primary purpose of service mesh?
+* ans : provide a secure, reliable, observable, and configurable service-to-service communication.Service mesh provides a secure, reliable, observable, and configurable service-to-service communication.

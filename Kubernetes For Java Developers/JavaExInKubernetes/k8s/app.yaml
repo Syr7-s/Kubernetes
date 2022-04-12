@@ -14,8 +14,7 @@ spec:
     spec:
       containers:
         - name: first-project-in-kubernetes
-          image: syr7s/first-project-in-kubernetes:v2
-          imagePullPolicy: IfNotPresent
+          image: syr7s/first-project-in-kubernetes
           ports:
             - containerPort: 8080
               name: "http"

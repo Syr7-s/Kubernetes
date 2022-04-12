@@ -1,0 +1,9 @@
+apiVersion: skaffold/v1beta2
+kind: Config
+build:
+  artifacts:
+    - image: syr7s/first-project-in-kubernetes
+deploy:
+  kubectl:
+    manifests:
+      - ./k8s/app.yaml
