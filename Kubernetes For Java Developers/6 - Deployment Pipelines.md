@@ -38,7 +38,7 @@
   imagePullPolicy: Always
   ```
 
-* We have ImagePullPolicy. It says always. Well, when I'm building with Skaffold, I don't really want to push the image and pull the image because that really adds up to my overall development cycle.
+* We have ImagePullPolicy. It says always. Well, when I'm building with Skaffold, I don't really want to push the image and pull the image because that really adds up to my overall development cycle.,
 
   ```yaml
   apiVersion: skaffold/v1beta2
@@ -53,6 +53,7 @@
   ```
 
   ```shell
+  $ choco install skaffold
   $ kubectl config use-context docker-desktop
   $ skaffold run | skaffold dev
   $ kubectl get pods
@@ -139,6 +140,9 @@
   * ans  : in the buildspec.yaml file located in root directory of the project. Default name and location of build specification for AWS Codepipeline is buildspec.yaml in the root directory of the project.
   * Skaffold is a great tool for deploying your applications to production?
   * ans : False . Skaffold is a great tool during your development cycle only.
+  * amazoncorretto.io  Amazon Corretto is a no-cost, multi-platform, long-term supported, downstream distribution of OpenJDK by Amazon.  You can use it on desktop, on-prem, and in the cloud. It is also available as a Docker image, and very convenient to get started with.
+  * docker.io,kubernetes.io,istio.io,aws.amazon.com/eks  in Service Mesh space is AWS App Mesh. This is a managed service mesh recently introduced by Amazon
+  * eksworkshop.com
 
   
 
