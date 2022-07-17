@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: envbin
+  labels:
+    app: envbin
+spec:
+  selector:
+    matchLabels:
+      app: envbin
+  template:
+    metadata:
+      labels:
+        app: envbin
+    spec:
+      containers:
+        - name: envbin
+          image: mtinside/envbin:latest
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8080
+            initialDelaySeconds: 0
+            periodSeconds: 1
+            timeoutSeconds: 1
+            successThreshold: 1
+            failureThreshold: 1

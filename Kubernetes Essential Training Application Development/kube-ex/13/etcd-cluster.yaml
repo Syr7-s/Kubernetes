@@ -1,0 +1,13 @@
+apiVersion: etcd.improbable.io/v1alpha1
+kind: EtcdCluster
+metadata:
+  name: example
+spec:
+  replicas: 3
+  version: 3.4.3
+  storage:
+    volumeClaimTemplate:
+      storageClassName: standard
+      resources:
+        requests:
+          storage: 1Mi

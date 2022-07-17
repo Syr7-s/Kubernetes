@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: web-declarative
+  annotations:
+    site: blog
+spec:
+  containers:
+    - name: web
+      image: nxing:1.17.1 

@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: blue
+  labels:
+    colour: blue
+spec:
+  containers:
+    - name: blue
+      image: mtinside/blue-green:blue
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: blue
+spec:
+  ports:
+    - port: 80
+      targetPort: 8080
+  selector:
+    colour: blue

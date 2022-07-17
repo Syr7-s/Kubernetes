@@ -1,0 +1,15 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: fetch
+spec:
+  schedule: "* * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: fetch
+              image: alpine
+              command: ["/bin/sh", "-c", "wget http://blue-green"]
+          restartPolicy: Never # Don't retry if failed

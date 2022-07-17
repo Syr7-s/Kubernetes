@@ -68,5 +68,86 @@
 
 * Serverless paradigms and containers introduce new tooling and technologies that benefit from a microservices approach.
 
-* 
+#### Common Microservices Patterns
+
+* The Twelve-Factor App :  The twelve-factor methodology was initially proposed for building software as a service applications for Heroku.
+
+* However, almost all of the principles covered by that methodology translate to the micro services and container world.
+
+* Understanding how to build applications in a lean and agile way will help you build micro services in a scalable and maintainable way
+
+  ![ks86](images/k8s6.png)
+
+* **Principle 1:  Codebase** 
+
+* The codebase must be tracked in version control and will have many deploys.
+
+* For most folks, this isn't a new thing. Code should be tracked in a single repo backed by a version control, and you'll probably have many deployments of the same application, like dev, staging, production, et cetera.
+
+* **Principle 2: Dependencies**
+
+* Dependencies are explicitly declared and isolated.
+
+* We write a lot of code and love to reuse it. I'm as guilty as anyone else for copy pasting pieces of code, but these days. should I rewrite this as a function? Or two, should I convert this to a library that can be called by anyone? There's an extra step with sharing libraries. You'll need to use a dependency management strategy for this. Like in Java, you might use Maven or in Ruby, a Gemfile.
+
+  ![k8s7](images/k8s7.png)
+
+* **Principle 3: Configuration**
+
+* Store configuration in the environment
+
+* Application configuration should never go into source code, but rather should be part of the environment. This is true whether it's a config file or uses environment variables.(Add configuration via environment variables or config files)
+
+* **Principle 4: Backing Services**
+
+* Treat backing services as an attached resource
+
+* Backing services can be a MySQL database, an SMTP email server, or a third-party service like a Twitter bot, et cetera. All of these are treated the same way and can be attached or detached from deploys at will. 
+
+  ![k8s8](images/k8s8.png)
+
+* **Principle 5: Build, Release, Run**
+
+* Build, deploy and run.
+
+* It promotes having a build and release strategy before getting an application into a running state. The importance here is not the tooling, but rather the ability to have repeatable builds, versioning on your running system, and a way to release or rollback
+
+  ![k8s9](images/k8s9.png)
+
+* **Principle 6: Processes**
+
+* Execute the application as a stateless process
+
+* Of all the factors, I think processes is the one that is the hardest to fully understand. It states that the entire application is executed as one or more stateless processes. For those working in large enterprises, this might be harder to implement because of existing infrastructure that is already laid out in terms of caching or sticky sessions. These ideas may need to be revisited and reimplemented in a different manner. 
+
+  ![k8s10](images/k8s10.png)
+
+* **Principle 7: Port Binding**
+
+* Expose services via port bindings
+
+* Enterprises already map applications in a specific way, and you may need to revisit the way these are designed to account for using port bindings.
+
+* **Principles 8,9 and 10**
+
+* Concurrency: Scale out with the process model.
+
+* Disposability: Qucik application startup and shutdown times
+
+* DEV/PROD parity : Application is treated the same way in dev, staging and production
+
+* **Principles 11 and 12**
+
+* The last two principles come back to concerns that are fundamental once the app is released.
+
+* Log Management :
+
+  * Treated as an event stream
+
+* Admin Tasks: 
+
+  * Treated the same way like the rest of the application
+  * Are allowed to run against a released version
+
+* Implement the twelve-factor principles in Kubernetes
 
